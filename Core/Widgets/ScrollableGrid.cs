@@ -25,14 +25,6 @@ namespace StardewUI.Widgets;
 public partial class ScrollableGrid : Grid, IScrollable
 {
     /// <summary>
-    /// Default constructor
-    /// </summary>
-    public ScrollableGrid()
-    {
-        PropertyChanged += OwnPropertyChanged;
-    }
-
-    /// <summary>
     /// The source collection, to be virtualized, if any.
     /// </summary>
     public IList? Items
@@ -223,9 +215,11 @@ public partial class ScrollableGrid : Grid, IScrollable
             ((items.Count / PrimaryItemCount + 1) * PrimaryItemCount) - items.Count;
     }
 
-    private void OwnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    /// <inheritdoc/>
+    protected override void OnPropertyChanged(string propertyName)
     {
-        if (e.PropertyName == nameof(PrimaryItemCount))
+        base.OnPropertyChanged(propertyName);
+        if (propertyName == nameof(PrimaryItemCount))
         {
             scrollStep = scrollRowCount * PrimaryItemCount;
             UpdateOverflow();
