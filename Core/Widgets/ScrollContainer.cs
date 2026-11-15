@@ -102,18 +102,8 @@ public partial class ScrollContainer : View, IScrollable
         set
         {
             if (value != scrollOffset.Value)
-            {
-                float newProgress;
-                if (ScrollSize == 0)
-                    newProgress = value >= scrollOffset.Value ? 1f : 0f;
-                else
-                    newProgress = value / ScrollSize;
-                if (Progress != newProgress)
-                {
-                    Progress = newProgress;
-                    OnPropertyChanged(nameof(Progress));
-                }
-            }
+                UpdateProgress(value);
+            
             var clamped = Math.Clamp(value, 0, ScrollSize);
             if (clamped != scrollOffset.Value)
             {
@@ -345,10 +335,26 @@ public partial class ScrollContainer : View, IScrollable
         if (args.PropertyName == nameof(ContentSize))
         {
             OnPropertyChanged(nameof(ScrollSize));
+            UpdateProgress(ScrollOffset);
+            ScrollChanged?.Invoke(this, EventArgs.Empty);
         }
         if (args.PropertyName == nameof(ActualBounds) || args.PropertyName == nameof(ScrollOffset))
         {
             ContentUpdateParentScrollingBounds(true);
+        }
+    }
+
+    private void UpdateProgress(float value)
+    {
+        float newProgress = 
+            ScrollSize != 0 ?
+            value / ScrollSize :
+            value >= ScrollOffset ? 1f : 0f;
+
+        if (Progress != newProgress)
+        {
+            Progress = newProgress;
+            OnPropertyChanged(nameof(Progress));
         }
     }
 
